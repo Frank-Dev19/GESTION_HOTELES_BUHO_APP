@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: frontend-app
+    env: node
+    buildCommand: npm install --legacy-peer-deps && npm run build -- --configuration production
+    startCommand: serve -s dist/galeria-app
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.2
+    rootDir: .
