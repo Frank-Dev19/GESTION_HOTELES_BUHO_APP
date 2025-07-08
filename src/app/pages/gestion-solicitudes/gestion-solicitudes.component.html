@@ -1,0 +1,390 @@
+<div class="dashboard-container">
+    <!-- Header con estadísticas -->
+    <div class="stats-section">
+        <div class="stat-card pending">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ contarSolicitudesPorEstado('pendiente') }}</h3>
+                <p>Pendientes</p>
+            </div>
+        </div>
+        <div class="stat-card processing">
+            <div class="stat-icon">
+                <i class="fas fa-cog"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ contarSolicitudesPorEstado('en_proceso') }}</h3>
+                <p>En Proceso</p>
+            </div>
+        </div>
+        <div class="stat-card completed">
+            <div class="stat-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ contarSolicitudesPorEstado('completada') }}</h3>
+                <p>Completadas Hoy</p>
+            </div>
+        </div>
+        <div class="stat-card urgent">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ contarSolicitudesUrgentes() }}</h3>
+                <p>Urgentes</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección principal -->
+    <div class="main-section">
+        <!-- Panel izquierdo - Habitaciones ocupadas -->
+        <div class="left-panel">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="header-title">
+                        <h4>Habitaciones Ocupadas</h4>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-action btn-refresh" (click)="actualizarHabitaciones()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="rooms-list">
+                        <div class="room-item" *ngFor="let habitacion of habitacionesOcupadas"
+                            [class.selected]="habitacionSeleccionada?.numero === habitacion.numero"
+                            (click)="seleccionarHabitacion(habitacion)">
+                            <div class="room-number">{{ habitacion.numero }}</div>
+                            <div class="room-info">
+                                <div class="guest-name">{{ habitacion.huesped.nombre }}</div>
+                                <div class="room-details">
+                                    <span class="check-in">Check-in: {{ habitacion.checkIn | date:'dd/MM' }}</span>
+                                    <span class="pending-requests"
+                                        *ngIf="contarSolicitudesPendientesPorHabitacion(habitacion.numero) > 0">
+                                        {{ contarSolicitudesPendientesPorHabitacion(habitacion.numero) }} pendiente(s)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="room-status">
+                                <i class="fas fa-user"
+                                    [class.has-requests]="contarSolicitudesPendientesPorHabitacion(habitacion.numero) > 0"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho - Gestión de solicitudes -->
+        <div class="right-panel">
+            <!-- Información de habitación seleccionada -->
+            <div class="dashboard-card" *ngIf="habitacionSeleccionada">
+                <div class="card-header">
+                    <div class="header-title">
+                        <h4>Habitación {{ habitacionSeleccionada.numero }} - {{ habitacionSeleccionada.huesped.nombre }}
+                        </h4>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-action btn-add" (click)="openModal(modalNuevaSolicitud)">
+                            <i class="fas fa-plus"></i>
+                            <span>Nueva Solicitud</span>
+                        </button>
+                        <button class="btn-action btn-history" (click)="verHistorial()">
+                            <i class="fas fa-history"></i>
+                            <span>Historial</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="guest-details">
+                        <div class="detail-row">
+                            <span class="label">Huésped:</span>
+                            <span class="value">{{ habitacionSeleccionada.huesped.nombre }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Documento:</span>
+                            <span class="value">{{ habitacionSeleccionada.huesped.documento }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Check-in:</span>
+                            <span class="value">{{ habitacionSeleccionada.checkIn | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Check-out:</span>
+                            <span class="value">{{ habitacionSeleccionada.checkOut | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Total cuenta:</span>
+                            <span class="value total-amount">S/ {{ calcularTotalCuenta(habitacionSeleccionada.numero)
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solicitudes activas -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="header-title">
+                        <h4>Solicitudes {{ habitacionSeleccionada ? 'de Habitación ' + habitacionSeleccionada.numero :
+                            'Activas' }}</h4>
+                    </div>
+                    <div class="header-actions">
+                        <div class="filter-container">
+                            <select class="form-control" [(ngModel)]="filtroEstado" (change)="filtrarSolicitudes()">
+                                <option value="">Todos los estados</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="en_proceso">En Proceso</option>
+                                <option value="completada">Completadas</option>
+                                <option value="cancelada">Canceladas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="requests-list">
+                        <div class="request-item" *ngFor="let solicitud of solicitudesFiltradas"
+                            [ngClass]="'status-' + solicitud.estado">
+                            <div class="request-header">
+                                <div class="request-info">
+                                    <span class="room-number">Hab. {{ solicitud.numeroHabitacion }}</span>
+                                    <span class="request-time">{{ solicitud.fechaSolicitud | date:'HH:mm' }}</span>
+                                    <span class="status-badge" [ngClass]="'status-' + solicitud.estado">
+                                        {{ obtenerTextoEstado(solicitud.estado) }}
+                                    </span>
+                                </div>
+                                <div class="request-actions">
+                                    <button class="action-btn edit-btn" (click)="editarSolicitud(solicitud)"
+                                        title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" (click)="cancelarSolicitud(solicitud)"
+                                        title="Cancelar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="request-content">
+                                <div class="services-list">
+                                    <div class="service-item" *ngFor="let item of solicitud.servicios">
+                                        <span class="service-name">{{ obtenerNombreServicio(item.servicioId) }}</span>
+                                        <span class="service-quantity">x{{ item.cantidad }}</span>
+                                        <span class="service-price">S/ {{ item.cantidad *
+                                            obtenerPrecioServicio(item.servicioId) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="request-details">
+                                    <div class="detail-item" *ngIf="solicitud.observaciones">
+                                        <strong>Observaciones:</strong> {{ solicitud.observaciones }}
+                                    </div>
+                                    <div class="detail-item" *ngIf="solicitud.empleadoAsignado">
+                                        <strong>Asignado a:</strong> {{ solicitud.empleadoAsignado }}
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Total:</strong> <span class="total-price">S/ {{
+                                            calcularTotalSolicitud(solicitud) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="request-footer">
+                                <div class="time-info">
+                                    <span class="elapsed-time" [ngClass]="{'urgent': esUrgente(solicitud)}">
+                                        {{ calcularTiempoTranscurrido(solicitud.fechaSolicitud) }}
+                                    </span>
+                                </div>
+                                <div class="status-actions">
+                                    <button class="btn-status pending" *ngIf="solicitud.estado !== 'pendiente'"
+                                        (click)="cambiarEstado(solicitud, 'pendiente')">
+                                        Pendiente
+                                    </button>
+                                    <button class="btn-status processing" *ngIf="solicitud.estado !== 'en_proceso'"
+                                        (click)="cambiarEstado(solicitud, 'en_proceso')">
+                                        En Proceso
+                                    </button>
+                                    <button class="btn-status completed" *ngIf="solicitud.estado !== 'completada'"
+                                        (click)="cambiarEstado(solicitud, 'completada')">
+                                        Completar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="no-requests" *ngIf="solicitudesFiltradas.length === 0">
+                            <i class="fas fa-inbox"></i>
+                            <p>No hay solicitudes {{ habitacionSeleccionada ? 'para esta habitación' : 'activas' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nueva solicitud -->
+<ng-template #modalNuevaSolicitud let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Nueva Solicitud - Habitación {{ habitacionSeleccionada?.numero }}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="solicitudForm" (ngSubmit)="guardarSolicitud(modal)">
+                <!-- Información del huésped -->
+                <div class="guest-info-section">
+                    <h6>Información del Huésped</h6>
+                    <div class="guest-summary">
+                        <span><strong>Nombre:</strong> {{ habitacionSeleccionada?.huesped.nombre }}</span>
+                        <span><strong>Habitación:</strong> {{ habitacionSeleccionada?.numero }}</span>
+                    </div>
+                </div>
+
+                <!-- Selección de servicios -->
+                <div class="services-section">
+                    <h6>Seleccionar Servicios</h6>
+                    <div class="services-tabs">
+                        <div class="tab-buttons">
+                            <button *ngFor="let categoria of categoriasServicios" type="button"
+                                [class.active]="categoriaServicioActiva === categoria.id"
+                                (click)="seleccionarCategoriaServicio(categoria.id)" class="tab-button">
+                                <i [class]="categoria.icono"></i> {{ categoria.nombre }}
+                            </button>
+                        </div>
+
+                        <div class="tab-content">
+                            <div class="services-grid">
+                                <div class="service-card" *ngFor="let servicio of serviciosPorCategoria()">
+                                    <div class="service-info">
+                                        <h6>{{ servicio.nombre }}</h6>
+                                        <p class="service-description">{{ servicio.descripcion }}</p>
+                                        <div class="service-price">S/ {{ servicio.precio }}</div>
+                                    </div>
+                                    <div class="service-quantity">
+                                        <button type="button" class="quantity-btn"
+                                            [disabled]="!tieneServicio(servicio.id)"
+                                            (click)="decrementarServicio(servicio.id)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <span class="quantity-value">{{ cantidadServicio(servicio.id) }}</span>
+                                        <button type="button" class="quantity-btn"
+                                            (click)="incrementarServicio(servicio.id)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servicios seleccionados -->
+                    <div class="selected-services" *ngIf="serviciosSeleccionados.length > 0">
+                        <h6>Servicios Seleccionados</h6>
+                        <div class="services-summary">
+                            <div class="service-item" *ngFor="let item of serviciosSeleccionados">
+                                <div class="service-item-details">
+                                    <span class="service-item-name">{{ obtenerNombreServicio(item.servicioId) }}</span>
+                                    <span class="service-item-quantity">x{{ item.cantidad }}</span>
+                                </div>
+                                <div class="service-item-price">S/ {{ item.cantidad *
+                                    obtenerPrecioServicio(item.servicioId) }}</div>
+                                <button type="button" class="remove-service"
+                                    (click)="eliminarServicio(item.servicioId)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="services-total">
+                                <span>Total:</span>
+                                <span>S/ {{ calcularTotalServicios() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles adicionales -->
+                <div class="additional-details">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prioridad</label>
+                            <select class="form-control" formControlName="prioridad">
+                                <option value="normal">Normal</option>
+                                <option value="alta">Alta</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Asignar a</label>
+                            <select class="form-control" formControlName="empleadoAsignado">
+                                <option value="">Sin asignar</option>
+                                <option *ngFor="let empleado of empleados" [value]="empleado.nombre">
+                                    {{ empleado.nombre }} - {{ empleado.area }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>Observaciones</label>
+                            <textarea class="form-control" formControlName="observaciones" rows="3"
+                                placeholder="Instrucciones especiales, alergias, etc."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="serviciosSeleccionados.length === 0">
+                        Crear Solicitud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Modal de historial -->
+<ng-template #modalHistorial let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Historial - Habitación {{ habitacionSeleccionada?.numero }}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="history-list">
+                <div class="history-item" *ngFor="let solicitud of obtenerHistorialHabitacion()">
+                    <div class="history-header">
+                        <span class="history-date">{{ solicitud.fechaSolicitud | date:'dd/MM/yyyy HH:mm' }}</span>
+                        <span class="status-badge" [ngClass]="'status-' + solicitud.estado">
+                            {{ obtenerTextoEstado(solicitud.estado) }}
+                        </span>
+                    </div>
+                    <div class="history-content">
+                        <div class="services-list">
+                            <div class="service-item" *ngFor="let item of solicitud.servicios">
+                                <span>{{ obtenerNombreServicio(item.servicioId) }} x{{ item.cantidad }}</span>
+                                <span>S/ {{ item.cantidad * obtenerPrecioServicio(item.servicioId) }}</span>
+                            </div>
+                        </div>
+                        <div class="history-total">
+                            <strong>Total: S/ {{ calcularTotalSolicitud(solicitud) }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-save" (click)="modal.dismiss()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</ng-template>

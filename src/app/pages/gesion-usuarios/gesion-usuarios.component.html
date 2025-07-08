@@ -1,0 +1,145 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <!-- Modificar la estructura del header para asegurar que los botones estén correctamente posicionados -->
+        <div class="card-header">
+            <div class="header-title">
+                <h4>Administración de Usuarios</h4>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action btn-refresh" (click)="actualizar()">
+                    <i class="tim-icons icon-refresh-02"></i>
+                    <span>Actualizar</span>
+                </button>
+                <button class="btn-action btn-add" (click)="openModal(modalTemplate)">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Agregar Usuario</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>DNI</th>
+                            <th>Celular</th>
+                            <th>Email</th>
+                            <th>Estado</th>
+                            <th>Rol</th>
+                            <th class="actions-column">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let usuario of usuarios" class="data-row">
+                            <td>{{usuario.id}}</td>
+                            <td>{{usuario.fullName}}</td>
+                            <td>{{usuario.username}}</td>
+                            <td>{{usuario.dni}}</td>
+                            <td>{{usuario.celular}}</td>
+                            <td>{{usuario.email}}</td>
+                            <td>
+                                <span class="status-badge" [ngClass]="{'status-active': usuario.estado === 'activo'}">
+                                    {{usuario.estado}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="role-badge"
+                                    [ngClass]="{'role-admin': usuario.role === 'ADMIN', 'role-vendedor': usuario.role === 'VENDEDOR'}">
+                                    {{usuario.role}}
+                                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit-btn" (click)="editarUsuario(usuario)" title="Editar">
+                                    <i class="tim-icons icon-pencil"></i>
+                                </button>
+                                <button class="action-btn delete-btn" (click)="eliminarUsuario(usuario)"
+                                    title="Eliminar">
+                                    <i class="tim-icons icon-trash-simple"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar usuario -->
+<ng-template #modalTemplate let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">{{modalTitulo}}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre de Usuario</label>
+                        <input type="text" class="form-control" formControlName="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" class="form-control" formControlName="password"
+                            [required]="!usuarioEditando">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" class="form-control" formControlName="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>DNI</label>
+                        <input type="text" class="form-control" formControlName="dni" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Celular</label>
+                        <input type="text" class="form-control" formControlName="celular" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" formControlName="email" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <input type="text" class="form-control" formControlName="estado" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select class="form-control" formControlName="role" required>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="RECEPCIONISTA">RECEPCIONISTA</option>
+                            <option value="LIMPIEZA">LIMPIEZA</option>
+                            <option value="COCINERO">COCINERO</option>
+                            <option value="VENDEDOR">VENDEDOR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!usuarioForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>

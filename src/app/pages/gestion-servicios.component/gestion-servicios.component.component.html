@@ -1,0 +1,244 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="header-title">
+                <h4>Administración de Servicios del Hotel</h4>
+            </div>
+            <div class="header-actions">
+                <!-- Filtro por categoría -->
+                <div class="select-container">
+                    <select class="form-control" [(ngModel)]="categoriaFiltro" (change)="filtrarServicios()">
+                        <option value="">Todas las categorías</option>
+                        <option *ngFor="let categoria of categoriasServicios" [value]="categoria.idCategoriaServicio">
+                            {{ categoria.nombre }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Botones de acción -->
+                <button class="btn-action btn-refresh" (click)="actualizarServicios()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Actualizar</span>
+                </button>
+                <button class="btn-action btn-add-category" (click)="openModal(modalCategoria)">
+                    <i class="fas fa-tags"></i>
+                    <span>Gestionar Categorías</span>
+                </button>
+                <button class="btn-action btn-add" (click)="openModal(modalServicio)">
+                    <i class="fas fa-plus"></i>
+                    <span>Agregar Servicio</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Vista de tarjetas en lugar de tabla -->
+            <div class="services-grid">
+                <div class="service-card" *ngFor="let servicio of serviciosFiltrados"
+                    [ngClass]="{'inactive-service': !servicio.activo}">
+
+                    <!-- Imagen del servicio -->
+                    <div class="service-image">
+                        <img [src]="servicio.imagenServicio" [alt]="servicio.nombre" class="service-img">
+                        <div class="service-id">#{{ servicio.idServicio }}</div>
+                        <div class="service-status"
+                            [ngClass]="{'status-active': servicio.activo, 'status-inactive': !servicio.activo}">
+                            {{ servicio.activo ? 'Activo' : 'Inactivo' }}
+                        </div>
+                    </div>
+
+                    <!-- Contenido del servicio -->
+                    <div class="service-content">
+                        <div class="service-header">
+                            <h5 class="service-name">{{ servicio.nombre }}</h5>
+                            <div class="service-category">
+                                <i class="fas fa-tag"></i>
+                                {{ obtenerNombreCategoria(servicio.categoriaServicio.idCategoriaServicio) }}
+                            </div>
+                        </div>
+
+                        <div class="service-description">
+                            {{ servicio.descripcion }}
+                        </div>
+
+                        <div class="service-footer">
+                            <div class="service-price">
+                                <span class="price-label">Precio:</span>
+                                <span class="price-value">S/ {{ servicio.precio }}</span>
+                            </div>
+
+                            <div class="service-actions">
+                                <button class="action-btn edit-btn" (click)="editarServicio(servicio)" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete-btn" (click)="eliminarServicio(servicio)"
+                                    title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje cuando no hay servicios -->
+                <div class="no-services" *ngIf="serviciosFiltrados.length === 0">
+                    <div class="no-services-icon">
+                        <i class="fas fa-concierge-bell"></i>
+                    </div>
+                    <h5>No hay servicios disponibles</h5>
+                    <p>No se encontraron servicios que coincidan con los filtros seleccionados.</p>
+                    <button class="btn-add-service" (click)="openModal(modalServicio)">
+                        <i class="fas fa-plus"></i>
+                        Agregar Primer Servicio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar servicio -->
+<ng-template #modalServicio let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">{{ modalTitulo }}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="servicioForm" (ngSubmit)="guardarServicio(modal)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre del Servicio</label>
+                        <input type="text" class="form-control" formControlName="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select class="form-control" [(ngModel)]="idCategoriaServicioSeleccionada"
+                            formControlName="categoriaServicio" required>
+                            <option value="" disabled>Seleccione una categoría</option>
+                            <option *ngFor="let categoria of categoriasServicios"
+                                [value]="categoria.idCategoriaServicio">
+                                {{ categoria.nombre }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio (S/)</label>
+                        <input type="number" class="form-control" formControlName="precio" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select class="form-control" formControlName="activo" required>
+                            <option [value]="true">Activo</option>
+                            <option [value]="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Descripción</label>
+                        <textarea class="form-control" formControlName="descripcion" rows="3" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Imagen del Servicio</label>
+                        <div class="image-upload-container">
+                            <div class="image-preview" *ngIf="imagenPreview">
+                                <img [src]="imagenPreview" alt="Preview" class="preview-image">
+                                <button type="button" class="delete-image-btn" (click)="eliminarImagenPreview()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="upload-area" *ngIf="!imagenPreview" (click)="fileInput.click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Haga clic para subir una imagen</p>
+                                <small>Formatos: JPG, PNG, GIF (máx. 5MB)</small>
+                            </div>
+                            <input #fileInput type="file" class="file-input" accept="image/*"
+                                (change)="onImageSelected($event)">
+                            <button type="button" class="btn-upload" *ngIf="!imagenPreview" (click)="fileInput.click()">
+                                <i class="fas fa-upload"></i> Seleccionar Imagen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!servicioForm.valid">
+                        {{ servicioEditando ? 'Actualizar' : 'Guardar' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Modal para gestionar categorías -->
+<ng-template #modalCategoria let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Gestionar Categorías de Servicios</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Formulario para nueva categoría -->
+            <form [formGroup]="categoriaForm" (ngSubmit)="guardarCategoria()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre de la Categoría</label>
+                        <input type="text" class="form-control" formControlName="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Icono (Font Awesome)</label>
+                        <input type="text" class="form-control" formControlName="icono" placeholder="fas fa-utensils"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <button type="submit" class="btn-add-category" [disabled]="!categoriaForm.valid">
+                            <i class="fas fa-plus"></i> {{categoriaEditando ? 'Actualizar' : 'Guardar'}}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Lista de categorías existentes -->
+            <div class="categories-list-section">
+                <h6>Categorías Existentes</h6>
+                <div class="categories-list">
+                    <div class="category-item" *ngFor="let categoria of categoriasServicios">
+                        <div class="category-info">
+                            <i [class]="categoria.icono"></i>
+                            <span class="category-name">{{ categoria.nombre }}</span>
+                        </div>
+                        <div class="category-actions">
+                            <button class="action-btn edit-btn" (click)="editarCategoria(categoria)" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" (click)="eliminarCategoria(categoria)"
+                                title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-save" (click)="modal.dismiss()">Cerrar</button>
+        </div>
+    </div>
+</ng-template>

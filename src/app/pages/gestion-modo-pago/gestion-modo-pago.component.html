@@ -1,0 +1,96 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <!-- Modificar la estructura del header para asegurar que los botones estén correctamente posicionados -->
+        <div class="card-header">
+            <div class="header-title">
+                <h4>Administración de Modo de Pago</h4>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action btn-refresh" (click)="actualizar()">
+                    <i class="tim-icons icon-refresh-02"></i>
+                    <span>Actualizar Listado</span>
+                </button>
+                <button class="btn-action btn-add" (click)="openModal(modalTemplate)">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Agregar Modo de Pago</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Descripcion</th>
+                            <!-- <th>Usuario</th>
+                            <th>DNI</th>
+                            <th>Celular</th>
+                            <th>Email</th>
+                            <th>Estado</th>
+                            <th>Rol</th> -->
+                            <th class="actions-column">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let modoPago of modoPagos" class="data-row">
+                            <td>{{modoPago.idModoPago}}</td>
+                            <td>{{modoPago.descripcion}}</td>
+                            <!-- <td>{{usuario.username}}</td>
+                            <td>{{usuario.dni}}</td>
+                            <td>{{usuario.celular}}</td>
+                            <td>{{usuario.email}}</td> -->
+                            <!-- <td>
+                                <span class="status-badge" [ngClass]="{'status-active': usuario.estado === 'activo'}">
+                                    {{usuario.estado}}
+                                </span>
+                            </td> -->
+                            <!-- <td>
+                                <span class="role-badge"
+                                    [ngClass]="{'role-admin': usuario.role === 'ADMIN', 'role-vendedor': usuario.role === 'VENDEDOR'}">
+                                    {{usuario.role}}
+                                </span>
+                            </td> -->
+                            <td class="actions-cell">
+                                <button class="action-btn edit-btn" (click)="editarModoPago(modoPago)" title="Editar">
+                                    <i class="tim-icons icon-pencil"></i>
+                                </button>
+                                <button class="action-btn delete-btn" (click)="eliminarModoPago(modoPago)"
+                                    title="Eliminar">
+                                    <i class="tim-icons icon-trash-simple"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar usuario -->
+<ng-template #modalTemplate let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">{{modalTitulo}}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="modoPagoForm" (ngSubmit)="guardarModoPago()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Modo de Pago</label>
+                        <input type="text" class="form-control" formControlName="descripcion" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!modoPagoForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>

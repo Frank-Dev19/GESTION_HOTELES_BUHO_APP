@@ -1,0 +1,571 @@
+// Variables
+$primary-color: #3f51b5;
+$secondary-color: #f5f5f5;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$danger-color: #f44336;
+$text-color: #333;
+$border-color: #e0e0e0;
+$hover-color: #f9f9f9;
+$shadow-color: rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$transition: all 0.3s ease;
+$room-color: #ffc107; // Color amarillo para las habitaciones
+
+// Dashboard Container
+.dashboard-container {
+    padding: 20px;
+    font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+// Card Styles
+.dashboard-card {
+    background-color: #fff;
+    border-radius: $border-radius;
+    box-shadow: 0 2px 10px $shadow-color;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+// Card Header
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background-color: #fff;
+    border-bottom: 1px solid $border-color;
+
+    .header-title {
+        h4 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: $text-color;
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+}
+
+// Buttons
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+    white-space: nowrap;
+
+    i {
+        font-size: 1rem;
+    }
+
+    &.btn-add {
+        background-color: $primary-color;
+        color: white;
+        width: 170px;
+
+        &:hover {
+            background-color: darken($primary-color, 10%);
+        }
+    }
+}
+
+// Card Body
+.card-body {
+    padding: 24px;
+}
+
+// Categories Container
+.categories-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+// Category Card
+.category-card {
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    overflow: hidden;
+    background-color: white;
+    transition: $transition;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-header {
+        padding: 12px 16px;
+        background-color: $secondary-color;
+        border-bottom: 1px solid $border-color;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: $text-color;
+            text-transform: uppercase;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 8px;
+        }
+    }
+
+    // Imagen de la categoría
+    .category-image {
+        width: 99%;
+        height: 200px;
+        overflow: hidden;
+        border-bottom: 1px solid $border-color;
+        padding-left: 5px;
+        padding-top: 5px;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: $transition;
+        }
+    }
+
+    .datos {
+        color: #0821ac;
+        font-size: 1.25rem;
+        //font-weight: 600;
+        padding-left: 8px;
+
+        .precio {
+            color: #000;
+        }
+
+        .preciovalor {
+            font-weight: 600;
+        }
+    }
+
+    .room-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: #666;
+            background-color: $secondary-color;
+            padding: 4px 8px;
+            border-radius: 4px;
+
+            i {
+                font-size: 0.875rem;
+            }
+        }
+    }
+
+    .category-body {
+        padding: 16px;
+        flex-grow: 1;
+        min-height: 200px;
+    }
+}
+
+// Rooms Grid
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+}
+
+// Room Item
+.room-item {
+    background-color: $room-color;
+    border-radius: 4px;
+    padding: 8px;
+    position: relative;
+    transition: $transition;
+    cursor: pointer;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+        .room-actions {
+            opacity: 1;
+        }
+    }
+
+    .room-number {
+        font-weight: 500;
+        font-size: 1.1rem;
+        color: $text-color;
+    }
+
+    .room-actions {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: $transition;
+    }
+}
+
+// Add Room Button
+.add-room-btn {
+    border: 2px dashed $border-color;
+    border-radius: 4px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: $transition;
+
+    i {
+        font-size: 1.5rem;
+        color: #999;
+    }
+
+    &:hover {
+        border-color: $primary-color;
+        background-color: rgba($primary-color, 0.05);
+
+        i {
+            color: $primary-color;
+        }
+    }
+}
+
+// No Categories Message
+.no-categories {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    background-color: $secondary-color;
+    border-radius: $border-radius;
+    color: #666;
+}
+
+// Icon Buttons
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    i {
+        font-size: 0.9rem;
+        color: #666;
+    }
+}
+
+.btn-icon-small {
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    i {
+        font-size: 0.7rem;
+        color: #333;
+    }
+}
+
+// Image Upload Styles
+.image-upload-container {
+    margin-top: 8px;
+
+    .image-preview {
+        position: relative;
+        width: 100%;
+        height: 150px;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid $border-color;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background-color: $danger-color;
+            }
+        }
+    }
+
+    .upload-button {
+        width: 100%;
+        height: 150px;
+        border: 2px dashed $border-color;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: $transition;
+
+        &:hover {
+            border-color: $primary-color;
+            background-color: rgba($primary-color, 0.05);
+
+            .upload-label {
+                color: $primary-color;
+            }
+        }
+
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            cursor: pointer;
+
+            i {
+                font-size: 2rem;
+            }
+        }
+
+        .file-input {
+            display: none;
+        }
+    }
+}
+
+// Modal Styles
+.custom-modal {
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        background-color: #fff;
+        border-bottom: 1px solid $border-color;
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: $text-color;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #999;
+            transition: $transition;
+
+            &:hover {
+                color: $danger-color;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: $text-color;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid $border-color;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            transition: $transition;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-color;
+                box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+            }
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .error-message {
+            color: $danger-color;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid $border-color;
+        margin-top: 16px;
+
+        .btn-cancel {
+            padding: 8px 16px;
+            background-color: $secondary-color;
+            color: $text-color;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background-color: darken($secondary-color, 5%);
+            }
+        }
+
+        .btn-save {
+            padding: 8px 16px;
+            background-color: $primary-color;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background-color: darken($primary-color, 10%);
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 992px) {
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .header-title {
+            margin-bottom: 16px;
+        }
+
+        .header-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .categories-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Fix for modal backdrop and content
+.modal-backdrop {
+    opacity: 0.5 !important;
+    background-color: #000 !important;
+}
+
+.modal-content {
+    border: none !important;
+    border-radius: $border-radius !important;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+
+.estado-disponible {
+    background-color: #22c527 !important;
+    /* verde */
+    color: white;
+}
+
+.estado-ocupada {
+    background-color: #c73025 !important;
+    /* rojo */
+    color: white;
+}
+
+.estado-mantenimiento {
+    background-color: #ff9800 !important;
+    /* naranja */
+    color: white;
+}

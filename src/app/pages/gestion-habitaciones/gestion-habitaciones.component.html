@@ -1,0 +1,221 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="header-title">
+                <h4>GESTIÓN DE HABITACIONES</h4>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action btn-add" (click)="openModalCategoria()">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Agregar Categoría</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="categories-container">
+                <!-- Categorías de habitaciones -->
+                <div class="category-card" *ngFor="let tipoHabitacion of tipoHabitaciones">
+                    <div class="category-header">
+                        <h5>{{ tipoHabitacion.descripcion }}</h5>
+                        <div class="category-actions">
+                            <button class="btn-icon" (click)="openModalCategoria(tipoHabitacion)">
+                                <i class="tim-icons icon-pencil"></i>
+                            </button>
+                            <button class="btn-icon" (click)="eliminarTipoHabitacion(tipoHabitacion)">
+                                <i class="tim-icons icon-trash-simple"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Imagen de la categoría (opcional) -->
+                    <div class="category-image" *ngIf="tipoHabitacion.imagenUrl">
+                        <img [src]="tipoHabitacion.imagenUrl" [alt]="tipoHabitacion.descripcion">
+                    </div>
+                    <div class="room-features">
+                        <span class="feature"><i class="fas fa-wifi"></i> WiFi</span>
+                        <span class="feature"><i class="fas fa-tv"></i> TV</span>
+                        <span class="feature"><i class="fas fa-snowflake"></i> A/C</span>
+                    </div>
+                    <div class="datos">
+                        <span class="precio">Precio:</span>
+                        <span class="preciovalor"> {{tipoHabitacion.precio}} </span>
+                    </div>
+
+                    <div class="category-body">
+                        <div class="rooms-grid">
+                            <!-- Habitaciones de la categoría -->
+                            <div class="room-item"
+                                *ngFor="let habitacion of habitacionesPorCategoria(tipoHabitacion.idTipoHabitacion)"
+                                [ngClass]="{
+                                    'estado-disponible': habitacion.estado === 'disponible',
+                                    'estado-ocupada': habitacion.estado === 'ocupada',
+                                    'estado-mantenimiento': habitacion.estado === 'mantenimiento'}">
+                                <div class="room-number">{{ habitacion.numero }}</div>
+                                <div class="room-actions">
+                                    <button class="btn-icon-small" (click)="editarHabitacion(habitacion)">
+                                        <i class="tim-icons icon-pencil"></i>
+                                    </button>
+                                    <button class="btn-icon-small" (click)="eliminarHabitacion(habitacion)">
+                                        <i class="tim-icons icon-trash-simple"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Botón para agregar habitación -->
+                            <div class="add-room-btn" (click)="openModalHabitacion(tipoHabitacion.idTipoHabitacion)">
+                                <i class="tim-icons icon-simple-add"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay categorías -->
+                <div class="no-categories" *ngIf="tipoHabitaciones.length === 0">
+                    <p>No hay categorías disponibles. Haga clic en "Agregar Categoría" para comenzar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar categoría -->
+<ng-template #modalCategoria let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">{{ editandotipoHabitacion ? 'Editar TipoHabitacion' : 'Agregar TipoHabitacion' }}
+            </h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="tipoHabitacionesForm" (ngSubmit)="guardarTipoHabitacion()">
+                <div class="form-group">
+                    <label>Nombre del Tipo de Habitacion</label>
+                    <input type="text" class="form-control" formControlName="descripcion"
+                        placeholder="Ej: Estándar, Superior, Ejecutivo" required>
+                    <div class="error-message"
+                        *ngIf="tipoHabitacionesForm.get('descripcion')?.invalid && tipoHabitacionesForm.get('descripcion')?.touched">
+                        El nombre de la categoría es obligatorio
+                    </div>
+                </div>
+
+                <!-- Imagen opcional (comentado)
+                <div class="form-group">
+                    <label>Imagen de la Categoría</label>
+                    <div class="image-upload-container">
+                        <div class="image-preview" *ngIf="imagenPreview">
+                            <img [src]="imagenPreview" alt="Vista previa">
+                            <button type="button" class="remove-image" (click)="eliminarImagenPreview()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="upload-button" *ngIf="!imagenPreview">
+                            <label for="imagen-upload" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Seleccionar imagen</span>
+                            </label>
+                            <input type="file" id="imagen-upload" accept="image/*"
+                                (change)="onImagenSeleccionada($event)" class="file-input">
+                        </div>
+                    </div>
+                    <input type="hidden" formControlName="imagenUrl">
+                    <small class="form-text text-muted">Formatos recomendados: JPG, PNG. Tamaño máximo: 2MB.</small>
+                </div>
+                -->
+
+                <!-- Dentro del modalCategoria, justo antes de Precio -->
+                <div class="form-group">
+                    <label>Imagen de la Categoría</label>
+                    <div class="image-upload-container">
+                        <div class="image-preview" *ngIf="imagenPreview">
+                            <img [src]="imagenPreview" alt="Vista previa" />
+                            <button type="button" class="remove-image" (click)="eliminarImagenPreview()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="upload-button" *ngIf="!imagenPreview">
+                            <label for="imagen-upload" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Seleccionar imagen</span>
+                            </label>
+                            <input type="file" id="imagen-upload" accept="image/*"
+                                (change)="onImagenSeleccionada($event)" class="file-input" />
+                        </div>
+                    </div>
+                    <!-- Guardar el base64 en el form control para enviar -->
+                    <input type="hidden" formControlName="imagenUrl" />
+                    <small class="form-text text-muted">Formatos JPG, PNG. Máx 2MB.</small>
+                </div>
+
+
+
+
+                <div class="form-group">
+                    <label>Precio</label>
+                    <input type="number" class="form-control" formControlName="precio" required
+                        placeholder="Precio de la categoría">
+                </div>
+
+                <div class="form-group">
+                    <label>Capacidad</label>
+                    <input type="number" class="form-control" formControlName="capacidad" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!tipoHabitacionesForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Modal para agregar/editar habitación -->
+<ng-template #modalHabitacion let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">{{ editandoHabitacion ? 'Editar Habitación' : 'Agregar Habitación' }}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="habitacionesForm" (ngSubmit)="guardarHabitacion()">
+                <div class="form-group">
+                    <label>Número de Habitación</label>
+                    <input type="text" class="form-control" formControlName="numero" placeholder="Ej: 101, 102, 103"
+                        required>
+                    <div class="error-message"
+                        *ngIf="habitacionesForm.get('numero')?.invalid && habitacionesForm.get('numero')?.touched">
+                        El número de habitación es obligatorio
+                    </div>
+                </div>
+                <!-- <div class="form-group">
+                    <label>Capacidad</label>
+                    <select class="form-control" formControlName="capacidad" required>
+                        <option value="" disabled selected>Seleccione capacidad</option>
+                        <option value="1">1 Persona</option>
+                        <option value="2">2 Personas</option>
+                        <option value="3">3 Personas</option>
+                        <option value="4">4 Personas</option>
+                        <option value="5">5+ Personas</option>
+                    </select>
+                </div> -->
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select class="form-control" formControlName="estado" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="disponible">Disponible</option>
+                        <option value="ocupada">Ocupada</option>
+                        <option value="mantenimiento">En Mantenimiento</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!habitacionesForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>

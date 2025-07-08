@@ -1,0 +1,290 @@
+<div class="dashboard-container">
+    <!-- Header con estadísticas -->
+    <div class="stats-section">
+        <div class="rating-overview">
+            <div class="overall-rating">
+                <div class="rating-number">{{ promedioCalificaciones | number:'1.1-1' }}</div>
+                <div class="rating-stars">
+                    <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                        [class.filled]="star <= promedioCalificaciones"></i>
+                </div>
+                <div class="rating-text">{{ totalCalificaciones }} reseñas</div>
+            </div>
+
+            <div class="rating-breakdown">
+                <div class="rating-bar" *ngFor="let item of distribucionEstrellas; let i = index">
+                    <span class="star-label">{{ 5-i }} <i class="fas fa-star"></i></span>
+                    <div class="bar-container">
+                        <div class="bar-fill" [style.width.%]="item.porcentaje"></div>
+                    </div>
+                    <span class="count">{{ item.cantidad }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de validación y nueva reseña -->
+    <div class="review-section" *ngIf="!mostrarFormularioReview">
+        <div class="dashboard-card validation-card">
+            <div class="card-header">
+                <div class="header-title">
+                    <h4>Comparte tu Experiencia</h4>
+                    <p>Ingresa tu código de validación para dejar una reseña</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="validacionForm" (ngSubmit)="validarCodigo()">
+                    <div class="validation-container">
+                        <div class="form-group">
+                            <label>Código de Validación</label>
+                            <div class="input-with-icon">
+                                <input type="text" class="form-control" formControlName="codigoValidacion"
+                                    placeholder="Ingresa tu código de 6 dígitos" maxlength="6"
+                                    [class.is-valid]="codigoValido" [class.is-invalid]="codigoInvalido">
+                                <i class="fas fa-key input-icon"></i>
+                            </div>
+                            <small class="form-text">
+                                *Encuentra tu código en el recibo de tu estadía
+                            </small>
+                        </div>
+                        <button type="submit" class="btn-validate"
+                            [disabled]="!validacionForm.valid || validandoCodigo">
+                            <i class="fas fa-check" *ngIf="!validandoCodigo"></i>
+                            <i class="fas fa-spinner fa-spin" *ngIf="validandoCodigo"></i>
+                            {{ validandoCodigo ? 'Validando...' : 'Validar Código' }}
+                        </button>
+                    </div>
+
+                    <div class="validation-message" *ngIf="mensajeValidacion"
+                        [ngClass]="{'success': codigoValido, 'error': codigoInvalido}">
+                        <i class="fas fa-check-circle" *ngIf="codigoValido"></i>
+                        <i class="fas fa-exclamation-circle" *ngIf="codigoInvalido"></i>
+                        {{ mensajeValidacion }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de reseña -->
+    <div class="review-section" *ngIf="mostrarFormularioReview">
+        <div class="dashboard-card review-card">
+            <div class="card-header">
+                <div class="header-title">
+                    <h4>Deja tu Reseña</h4>
+                    <p>Cuéntanos sobre tu experiencia en nuestro hotel</p>
+                </div>
+                <button class="btn-close" (click)="cancelarReview()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="reviewForm" (ngSubmit)="guardarReview()">
+                    <!-- Información del huésped -->
+                    <div class="guest-info" *ngIf="huespedValidado">
+                        <div class="guest-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="guest-details">
+                            <h6>{{ huespedValidado.nombre }}</h6>
+                            <p>Habitación {{ huespedValidado.habitacion }} • {{ huespedValidado.fechaEstadia |
+                                date:'dd/MM/yyyy' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Sistema de calificación con estrellas -->
+                    <div class="rating-section">
+                        <label>Calificación General</label>
+                        <div class="star-rating">
+                            <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star star-interactive"
+                                [class.filled]="star <= calificacionSeleccionada" [class.hover]="star <= starHover"
+                                (click)="seleccionarCalificacion(star)" (mouseenter)="starHover = star"
+                                (mouseleave)="starHover = 0"></i>
+                        </div>
+                        <div class="rating-description">
+                            {{ obtenerDescripcionCalificacion(calificacionSeleccionada) }}
+                        </div>
+                    </div>
+
+                    <!-- Aspectos específicos -->
+                    <div class="aspects-section">
+                        <label>Califica aspectos específicos (opcional)</label>
+                        <div class="aspects-grid">
+                            <div class="aspect-item" *ngFor="let aspecto of aspectosCalificacion">
+                                <div class="aspect-label">
+                                    <i [class]="aspecto.icono"></i>
+                                    {{ aspecto.nombre }}
+                                </div>
+                                <div class="aspect-stars">
+                                    <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star star-small"
+                                        [class.filled]="star <= aspecto.calificacion"
+                                        (click)="calificarAspecto(aspecto, star)"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comentario -->
+                    <div class="comment-section">
+                        <div class="form-group">
+                            <label>Tu Comentario</label>
+                            <textarea class="form-control" formControlName="comentario" rows="4"
+                                placeholder="Comparte los detalles de tu experiencia..."></textarea>
+                            <div class="character-count">
+                                {{ reviewForm.get('comentario')?.value?.length || 0 }}/500 caracteres
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="additional-info">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Motivo de la visita</label>
+                                <select class="form-control" formControlName="motivoVisita">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="negocios">Negocios</option>
+                                    <option value="placer">Placer/Vacaciones</option>
+                                    <option value="familia">Viaje en familia</option>
+                                    <option value="pareja">Viaje en pareja</option>
+                                    <option value="solo">Viaje solo</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" formControlName="recomendaria">
+                                        <span class="checkmark"></span>
+                                        ¿Recomendarías este hotel?
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" (click)="cancelarReview()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-submit"
+                            [disabled]="!reviewForm.valid || calificacionSeleccionada === 0">
+                            <i class="fas fa-paper-plane"></i>
+                            Publicar Reseña
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y ordenamiento -->
+    <div class="filters-section">
+        <div class="dashboard-card">
+            <div class="card-body">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label>Filtrar por calificación:</label>
+                        <div class="star-filters">
+                            <button class="star-filter" [class.active]="filtroCalificacion === 0"
+                                (click)="filtrarPorCalificacion(0)">
+                                Todas
+                            </button>
+                            <button *ngFor="let star of [5,4,3,2,1]" class="star-filter"
+                                [class.active]="filtroCalificacion === star" (click)="filtrarPorCalificacion(star)">
+                                {{ star }} <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Ordenar por:</label>
+                        <select class="form-control" [(ngModel)]="ordenamiento" (change)="ordenarReviews()">
+                            <option value="reciente">Más recientes</option>
+                            <option value="antiguo">Más antiguos</option>
+                            <option value="mejor">Mejor calificados</option>
+                            <option value="peor">Peor calificados</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de reseñas -->
+    <div class="reviews-list-section">
+        <div class="section-header">
+            <h4>Reseñas de Huéspedes</h4>
+            <span class="reviews-count">{{ reviewsFiltradas.length }} reseñas</span>
+        </div>
+
+        <div class="reviews-grid">
+            <div class="review-item" *ngFor="let review of reviewsFiltradas">
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <div class="reviewer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="reviewer-details">
+                            <h6>{{ review.nombreHuesped }}</h6>
+                            <div class="review-meta">
+                                <span class="room-info">Habitación {{ review.habitacion }}</span>
+                                <span class="date-info">{{ review.fechaReview | date:'dd/MM/yyyy' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="review-rating">
+                        <div class="stars">
+                            <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                                [class.filled]="star <= review.calificacion"></i>
+                        </div>
+                        <span class="rating-number">{{ review.calificacion }}/5</span>
+                    </div>
+                </div>
+
+                <div class="review-content">
+                    <div class="review-badges" *ngIf="review.motivoVisita || review.recomendaria">
+                        <span class="badge motivo-badge" *ngIf="review.motivoVisita">
+                            {{ obtenerTextoMotivo(review.motivoVisita) }}
+                        </span>
+                        <span class="badge recommend-badge" *ngIf="review.recomendaria">
+                            <i class="fas fa-thumbs-up"></i> Recomendado
+                        </span>
+                    </div>
+
+                    <p class="review-comment">{{ review.comentario }}</p>
+
+                    <!-- Aspectos específicos si existen -->
+                    <div class="review-aspects" *ngIf="review.aspectos && review.aspectos.length > 0">
+                        <div class="aspect-rating" *ngFor="let aspecto of review.aspectos">
+                            <span class="aspect-name">{{ aspecto.nombre }}:</span>
+                            <div class="aspect-stars-small">
+                                <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                                    [class.filled]="star <= aspecto.calificacion"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-footer">
+                    <div class="review-actions">
+                        <button class="action-btn helpful-btn">
+                            <i class="fas fa-thumbs-up"></i>
+                            Útil ({{ review.votosUtiles || 0 }})
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado vacío -->
+            <div class="no-reviews" *ngIf="reviewsFiltradas.length === 0">
+                <div class="no-reviews-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h5>No hay reseñas disponibles</h5>
+                <p>Sé el primero en compartir tu experiencia</p>
+            </div>
+        </div>
+    </div>
+</div>

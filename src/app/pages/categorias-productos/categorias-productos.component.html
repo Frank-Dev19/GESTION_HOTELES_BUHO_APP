@@ -1,0 +1,153 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="header-title">
+                <h4>Gestión de Categorías y Productos</h4>
+            </div>
+            <div class="header-actions">
+                <!-- Combobox de categorías -->
+                <div class="select-container">
+                    <select class="form-control" [(ngModel)]="selectedCategoriaId">
+                        <option value="" disabled selected>Seleccione una categoría</option>
+                        <option *ngFor="let categoria of categorias" [value]="categoria.idCategoria">
+                            {{ categoria.descripcion }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Botones de acción -->
+                <button class="btn-action btn-search" (click)="buscarProductosPorCategoria()">
+                    <i class="tim-icons icon-zoom-split"></i>
+                    <span>Buscar</span>
+                </button>
+                <button class="btn-action btn-edit" (click)="editarCategoria(selectedCategoriaId)">
+                    <i class="tim-icons icon-pencil"></i>
+                    <span>Editar Categoría</span>
+                </button>
+                <button class="btn-action btn-add-category" (click)="openModal(AddCategories)">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Añadir Categoría</span>
+                </button>
+                <button class="btn-action btn-add" (click)="openModal(AddProducts)">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Añadir Producto</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th class="actions-column">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let producto of productos" class="data-row">
+                            <td>{{ producto.idProducto }}</td>
+                            <td>{{ producto.nombre }}</td>
+                            <td>
+                                <span class="stock-badge"
+                                    [ngClass]="{'stock-low': producto.stock < 10, 'stock-medium': producto.stock >= 10 && producto.stock < 50, 'stock-high': producto.stock >= 50}">
+                                    {{ producto.stock }}
+                                </span>
+                            </td>
+                            <td>{{ producto.precio | currency:'S/ ' }}</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit-btn" (click)="editarProducto(producto)" title="Editar">
+                                    <i class="tim-icons icon-pencil"></i>
+                                </button>
+                                <button class="action-btn delete-btn" (click)="eliminarProducto(producto)"
+                                    title="Eliminar">
+                                    <i class="tim-icons icon-trash-simple"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="productos && productos.length === 0">
+                            <td colspan="5" class="no-data">No hay productos disponibles para esta categoría</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar categoría -->
+<ng-template #AddCategories let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Agregar Categoría</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="categoriaForm" (ngSubmit)="guardarCategoria()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" class="form-control" formControlName="descripcion" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!categoriaForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Modal para agregar/editar producto -->
+<ng-template #AddProducts let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Agregar Producto</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="productoForm" (ngSubmit)="guardarProducto()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" formControlName="nombre" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" class="form-control" formControlName="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio</label>
+                        <input type="number" class="form-control" formControlName="precio" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select class="form-control" [(ngModel)]="selectedCategoriaId"
+                            formControlName="categoriaSeleccionada" required>
+                            <option value="" disabled selected>Seleccione una categoría</option>
+                            <option *ngFor="let categoria of categorias" [value]="categoria.idCategoria">
+                                {{ categoria.descripcion }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!productoForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>

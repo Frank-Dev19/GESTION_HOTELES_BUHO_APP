@@ -1,0 +1,94 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <!-- Modificar la estructura del header para asegurar que los botones estén correctamente posicionados -->
+        <div class="card-header">
+            <div class="header-title">
+                <h4>Administración de clientes</h4>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action btn-refresh" (click)="actualizar()">
+                    <i class="tim-icons icon-refresh-02"></i>
+                    <span>Actualizar</span>
+                </button>
+                <button class="btn-action btn-add" (click)="openModal(modalTemplate)">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Agregar Cliente</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>DNI</th>
+                            <th>Fecha de Registro</th>
+                            <th class="actions-column">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let cliente of clientes" class="data-row">
+                            <td>{{cliente.idCliente}}</td>
+                            <td>{{cliente.nombreCompleto}}</td>
+                            <td>{{cliente.dni}}</td>
+                            <td>{{cliente.fechaRegistro}}</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit-btn" (click)="editarCliente(cliente)" title="Editar">
+                                    <i class="tim-icons icon-pencil"></i>
+                                </button>
+                                <button class="action-btn delete-btn" (click)="eliminarCliente(cliente)"
+                                    title="Eliminar">
+                                    <i class="tim-icons icon-trash-simple"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar cliente -->
+<ng-template #modalTemplate let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">{{modalTitulo}}</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="clienteForm" (ngSubmit)="guardarCliente()">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre Compleo del Cliente</label>
+                        <input type="text" class="form-control" formControlName="nombreCompleto" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>DNI</label>
+                        <input type="text" class="form-control" formControlName="dni" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Registro</label>
+                        <input type="text" class="form-control" formControlName="fechaRegistro" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" (click)="modal.dismiss()">Cancelar</button>
+                    <button type="submit" class="btn-save" [disabled]="!clienteForm.valid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</ng-template>

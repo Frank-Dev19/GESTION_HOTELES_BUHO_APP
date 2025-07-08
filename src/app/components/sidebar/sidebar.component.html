@@ -1,0 +1,120 @@
+<!-- sidebar.component.html -->
+<div class="sidebar-container">
+    <div class="logo">
+        <a href="home" class="simple-text logo-normal">
+            <div class="logo-sirge">
+                <a href="/reservasHabitaciones"><img src="assets/img/Hotel.jpg" alt="Logo del sistema" /></a>
+            </div>
+        </a>
+    </div>
+
+    <div class="sidebar-wrapper">
+        <div id="sidebar" [ngClass]="{ 'active': menuOpen }">
+            <ul class="nav">
+
+                <li class="nav-item" *ngIf="authenticatedUser?.role === 'ADMIN'">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('administracion')">
+                        <i class="tim-icons icon-bank"></i>
+                        <p>Administracion <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('administracion') }">
+                        <li><a class="nav-link" href="/gestionUsuarios">Usuarios</a></li>
+                        <li><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                        <li><a class="nav-link" href="/CategoriasProductos">Categ-Produc</a></li>
+                        <li><a class="nav-link" href="/habitaciones">Habitaciones</a></li>
+                        <li><a class="nav-link" href="/reservasHabitaciones">Reservas</a></li>
+                        <li><a class="nav-link" href="/modoPago">Modo Pago</a></li>
+                        <!-- <li><a class="nav-link" href="/prueba">Modo Pago</a></li> -->
+                        <li><a class="nav-link" href="/clientes">Clientess</a></li>
+                        <li><a class="nav-link" href="/servicios">Servicios</a></li>
+                        <li><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
+                        <li><a class="nav-link" href="/calificaciones">Calificaciones</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('habitaciones')">
+                        <i class="tim-icons icon-bank"></i>
+                        <p>Habitaciones <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('habitaciones') }">
+                        <li><a class="nav-link" href="/habitaciones">Habitaciones</a></li>
+                        <li><a class="nav-link" href="/reservasHabitaciones">Reservas</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('parametros')">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Categorias <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('parametros') }">
+                        <li><a class="nav-link" href="/CategoriasProductos">Categ-Produc</a></li>
+                        <li><a class="nav-link" href="/CategoriasProductos"></a></li>
+                        <li><a class="nav-link" href="/CategoriasProductos"></a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('clientes')">
+                        <i class="tim-icons icon-single-02"></i>
+                        <p>Clientes <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('clientes') }">
+                        <li><a class="nav-link" href="/clientes">Clientes</a></li>
+                        <li><a class="nav-link" href="/clientes"></a></li>
+                        <li><a class="nav-link" href="/clientes"></a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('configuracion')">
+                        <i class="tim-icons icon-settings-gear-63"></i>
+                        <p>Configuracion <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('configuracion') }">
+                        <li><a class="nav-link" href="#">Usuarios</a></li>
+                        <!-- <li><a class="nav-link" href="#">Roles</a></li> -->
+                        <li><a class="nav-link" href="#">Subida de archivos</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('procesos')">
+                        <i class="tim-icons icon-delivery-fast"></i>
+                        <p>Servicios <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('procesos') }">
+                        <li><a class="nav-link" href="/servicios">Servicios</a></li>
+                        <li><a class="nav-link" href="/solicitudes">Solicitudes</a></li>
+                    </ul>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('modopago')">
+                        <i class="tim-icons icon-money-coins"></i>
+                        <p>Modo de Pago <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('modopago') }">
+                        <li><a class="nav-link" href="/modoPago">Modo Pago</a></li>
+                        <li><a class="nav-link" href="/modoPago"></a></li>
+                        <li><a class="nav-link" href="/modoPago"></a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="javascript:void(0);" (click)="toggleSubMenu('calificaciones')">
+                        <i class="tim-icons icon-shape-star"></i>
+                        <p>Calificacionesss <span class="caret"></span></p>
+                    </a>
+                    <ul class="nav submenu" [ngClass]="{ 'show': isSubMenuOpen('calificaciones') }">
+                        <li><a class="nav-link" href="/calificaciones">Calificaciones</a></li>
+                        <li><a class="nav-link" href="/calificaciones"></a></li>
+                        <li><a class="nav-link" href="/calificaciones"></a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

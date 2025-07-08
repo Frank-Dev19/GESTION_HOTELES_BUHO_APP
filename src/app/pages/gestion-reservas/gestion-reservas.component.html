@@ -1,0 +1,347 @@
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <div class="header-title">
+                <h4>Reservación de Habitaciones</h4>
+            </div>
+            <div class="header-actions">
+                <button class="btn-action btn-refresh" (click)="actualizarDisponibilidad()">
+                    <i class="tim-icons icon-refresh-01"></i>
+                    <span>Actualizar Disponibilidad</span>
+                </button>
+                <button class="btn-action btn-add" (click)="nuevaReservacion()">
+                    <i class="tim-icons icon-simple-add"></i>
+                    <span>Nueva Reservación</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="reservation-container">
+                <!-- Sección de búsqueda y fechas -->
+                <div class="search-section">
+                    <div class="date-range">
+                        <div class="form-group">
+                            <label>Fecha de entrada</label>
+                            <div class="input-with-icon">
+                                <input type="date" class="form-control" [(ngModel)]="fechaEntrada"
+                                    (change)="buscarDisponibilidad()">
+                                <i class="tim-icons icon-calendar-60"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de salida</label>
+                            <div class="input-with-icon">
+                                <input type="date" class="form-control" [(ngModel)]="fechaSalida"
+                                    (change)="buscarDisponibilidad()">
+                                <i class="tim-icons icon-calendar-60"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Huéspedes</label>
+                            <div class="input-with-icon">
+                                <select class="form-control" [(ngModel)]="cantidadHuespedes">
+                                    <option value="1">1 Persona</option>
+                                    <option value="2">2 Personas</option>
+                                    <option value="3">3 Personas</option>
+                                    <option value="4">4 Personas</option>
+                                    <option value="5">5+ Personas</option>
+                                </select>
+                                <i class="tim-icons icon-single-02"></i>
+                            </div>
+                        </div>
+                        <button class="btn-action btn-search" (click)="buscarDisponibilidad()">
+                            <i class="tim-icons icon-zoom-split"></i>
+                            <span>Buscar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sección de habitaciones disponibles -->
+                <div class="rooms-section">
+                    <h5>Habitaciones Disponibles</h5>
+                    <div class="rooms-grid">
+                        <!-- Habitación 1 -->
+                        <div class="room-card" *ngFor="let tipoHabitacion of tipoHabitaciones">
+                            <div class="room-image">
+                                <img [src]="tipoHabitacion.imagenUrl" [alt]="tipoHabitacion.descripcion">
+                                <!-- <div class="room-status"
+                                    [ngClass]="{'status-available': habitacion1.disponible, 'status-reserved': !habitacion1.disponible}">
+                                    {{ habitacion1.disponible ? 'Disponible' : 'Reservada' }}
+                                </div> -->
+                            </div>
+                            <div class="room-details">
+                                <h6>{{tipoHabitacion.descripcion}}</h6>
+                                <p class="room-description">Habitación confortable con cama matrimonial, baño privado y
+                                    vista a la ciudad.</p>
+                                <div class="room-features">
+                                    <span class="feature"><i class="fas fa-wifi"></i> WiFi</span>
+                                    <span class="feature"><i class="fas fa-tv"></i> TV</span>
+                                    <span class="feature"><i class="fas fa-snowflake"></i> A/C</span>
+                                </div>
+                                <div class="room-price">
+                                    <span class="price">S/ {{tipoHabitacion.precio}}</span>
+                                    <span class="per-night">por noche</span>
+                                </div>
+                                <button class="btn-select"
+                                    [disabled]="!disponibilidadPorTipo.get(tipoHabitacion.idTipoHabitacion)"
+                                    (click)=" seleccionarHabitacion(habitacion1)">
+                                    {{ disponibilidadPorTipo.get(tipoHabitacion.idTipoHabitacion) ? 'Seleccionar' : 'No
+                                    Disponible' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Habitación 2 -->
+                        <!-- <div class="room-card"
+                            [ngClass]="{'room-available': habitacion2.disponible, 'room-reserved': !habitacion2.disponible}">
+                            <div class="room-image">
+                                <img src="../../../assets/img/HabitacionSuperior.png" alt="Habitación Superior">
+                                <div class="room-status"
+                                    [ngClass]="{'status-available': habitacion2.disponible, 'status-reserved': !habitacion2.disponible}">
+                                    {{ habitacion2.disponible ? 'Disponible' : 'Reservada' }}
+                                </div>
+                            </div>
+                            <div class="room-details">
+                                <h6>Habitación Superior</h6>
+                                <p class="room-description">Amplia habitación con cama king, sala de estar y vista
+                                    panorámica.</p>
+                                <div class="room-features">
+                                    <span class="feature"><i class="fas fa-wifi"></i> WiFi</span>
+                                    <span class="feature"><i class="fas fa-tv"></i> TV</span>
+                                    <span class="feature"><i class="fas fa-snowflake"></i> A/C</span>
+                                    <span class="feature"><i class="fas fa-glass-martini-alt"></i> Minibar</span>
+                                </div>
+                                <div class="room-price">
+                                    <span class="price">S/ 250</span>
+                                    <span class="per-night">por noche</span>
+                                </div>
+                                <button class="btn-select" [disabled]="!habitacion2.disponible"
+                                    (click)="seleccionarHabitacion(habitacion2)">
+                                    {{ habitacion2.disponible ? 'Seleccionar' : 'No Disponible' }}
+                                </button>
+                            </div>
+                        </div> -->
+
+                    </div>
+                </div>
+
+                <!-- Formulario de reserva -->
+                <div class="reservation-form" *ngIf="habitacionSeleccionada">
+                    <h5>Detalles de la Reserva</h5>
+
+                    <!-- Sección de servicios adicionales -->
+                    <div class="services-section">
+                        <h6>Servicios Adicionales</h6>
+                        <div class="services-tabs">
+                            <div class="tab-buttons">
+                                <button *ngFor="let categoria of categoriasServicios"
+                                    [class.active]="categoriaServicioActiva === categoria.id"
+                                    (click)="seleccionarCategoriaServicio(categoria.id)" class="tab-button">
+                                    <i [class]="categoria.icono"></i> {{ categoria.nombre }}
+                                </button>
+                            </div>
+
+                            <div class="tab-content">
+                                <div class="services-grid">
+                                    <div class="service-card" *ngFor="let servicio of serviciosPorCategoria()">
+                                        <div class="service-image">
+                                            <img [src]="servicio.imagen" [alt]="servicio.nombre">
+                                        </div>
+                                        <div class="service-details">
+                                            <h6>{{ servicio.nombre }}</h6>
+                                            <p class="service-description">{{ servicio.descripcion }}</p>
+                                            <div class="service-price">S/ {{ servicio.precio }}</div>
+                                            <div class="service-quantity">
+                                                <button class="quantity-btn" [disabled]="!tieneServicio(servicio.id)"
+                                                    (click)="decrementarServicio(servicio.id)">
+                                                    <i class="tim-icons icon-simple-delete"></i>
+                                                </button>
+                                                <span class="quantity-value">{{ cantidadServicio(servicio.id) }}</span>
+                                                <button class="quantity-btn" (click)="incrementarServicio(servicio.id)">
+                                                    <i class="tim-icons icon-simple-add"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen de servicios seleccionados -->
+                        <div class="selected-services" *ngIf="serviciosSeleccionados.length > 0">
+                            <h6>Servicios Seleccionados</h6>
+                            <div class="services-summary">
+                                <div class="service-item" *ngFor="let item of serviciosSeleccionados">
+                                    <div class="service-item-details">
+                                        <span class="service-item-name">{{ obtenerServicio(item.servicioId).nombre
+                                            }}</span>
+                                        <span class="service-item-quantity">x{{ item.cantidad }}</span>
+                                    </div>
+                                    <div class="service-item-price">S/ {{ item.cantidad *
+                                        obtenerServicio(item.servicioId).precio }}</div>
+                                    <button class="remove-service" (click)="eliminarServicio(item.servicioId)">
+                                        <i class="tim-icons icon-trash-simple"></i>
+                                    </button>
+                                </div>
+                                <div class="services-total">
+                                    <span>Total Servicios:</span>
+                                    <span>S/ {{ calcularTotalServicios() }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de la reserva -->
+                    <div class="reservation-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Habitación:</span>
+                            <span class="summary-value">{{ habitacionSeleccionada.nombre }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fecha de entrada:</span>
+                            <span class="summary-value">{{ fechaEntrada | date:'dd/MM/yyyy' }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Fecha de salida:</span>
+                            <span class="summary-value">{{ fechaSalida | date:'dd/MM/yyyy' }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Noches:</span>
+                            <span class="summary-value">{{ calcularNoches() }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Precio por noche:</span>
+                            <span class="summary-value">S/ {{ habitacionSeleccionada.precio }}</span>
+                        </div>
+                        <div class="summary-item" *ngIf="serviciosSeleccionados.length > 0">
+                            <span class="summary-label">Servicios adicionales:</span>
+                            <span class="summary-value">S/ {{ calcularTotalServicios() }}</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span class="summary-label">Total:</span>
+                            <span class="summary-value">S/ {{ calcularTotal() }}</span>
+                        </div>
+                    </div>
+
+                    <h5>Datos del Cliente</h5>
+                    <form [formGroup]="clienteForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tipo de Documento</label>
+                                <select class="form-control" formControlName="tipoDocumento">
+                                    <option value="dni">DNI</option>
+                                    <option value="pasaporte">Pasaporte</option>
+                                    <option value="ce">Carnet de Extranjería</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Número de Documento</label>
+                                <input type="text" class="form-control" formControlName="numeroDocumento">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nombres</label>
+                                <input type="text" class="form-control" formControlName="nombres">
+                            </div>
+                            <div class="form-group">
+                                <label>Apellidos</label>
+                                <input type="text" class="form-control" formControlName="apellidos">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Correo Electrónico</label>
+                                <input type="email" class="form-control" formControlName="email">
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <input type="tel" class="form-control" formControlName="telefono">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Método de Pago</label>
+                                <select class="form-control" formControlName="metodoPago">
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                                    <option value="transferencia">Transferencia Bancaria</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" (click)="cancelarReserva()">Cancelar</button>
+                            <button type="button" class="btn-save" [disabled]="!clienteForm.valid"
+                                (click)="confirmarReserva(confirmacionModal)">Confirmar Reserva</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<ng-template #confirmacionModal let-modal>
+    <div class="custom-modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Reserva Confirmada</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="modal.dismiss()">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirmation-content">
+                <div class="confirmation-icon">
+                    <i class="tim-icons icon-check-2"></i>
+                </div>
+                <h5>¡Su reserva ha sido confirmada!</h5>
+                <p>Se ha enviado un correo electrónico con los detalles de su reserva a <strong>{{
+                        clienteForm.get('email')?.value }}</strong></p>
+
+                <div class="reservation-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Número de Reserva:</span>
+                        <span class="detail-value">RES-{{ generarNumeroReserva() }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Habitación:</span>
+                        <span class="detail-value">{{ habitacionSeleccionada?.nombre }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Check-in:</span>
+                        <span class="detail-value">{{ fechaEntrada | date:'dd/MM/yyyy' }} (desde las 15:00)</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Check-out:</span>
+                        <span class="detail-value">{{ fechaSalida | date:'dd/MM/yyyy' }} (hasta las 12:00)</span>
+                    </div>
+
+                    <!-- Servicios adicionales en la confirmación -->
+                    <div class="detail-services" *ngIf="serviciosSeleccionados.length > 0">
+                        <span class="detail-label">Servicios adicionales:</span>
+                        <div class="detail-service-items">
+                            <div class="detail-service-item" *ngFor="let item of serviciosSeleccionados">
+                                <span>{{ obtenerServicio(item.servicioId).nombre }} x{{ item.cantidad }}</span>
+                                <span>S/ {{ item.cantidad * obtenerServicio(item.servicioId).precio }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Total pagado:</span>
+                        <span class="detail-value">S/ {{ calcularTotal() }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-save" (click)="modal.dismiss()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
