@@ -8,6 +8,6 @@ RUN npm run build
 
 # Etapa 2: Servidor estático
 FROM nginx:stable-alpine as production-stage
-COPY --from=build-stage /app/dist/galeria-app /usr/share/nginx/html
+COPY --from=build-stage /app/dist/galeria-app/browser /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
